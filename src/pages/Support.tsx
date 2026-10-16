@@ -16,6 +16,10 @@ import {
   MessageCircle, Sparkles, Calendar, Package, Phone, Clock, Globe, Users, X, Smartphone, ExternalLink
 } from "lucide-react";
 
+// Payload CMS Live Hook & Media Resolver
+import { useMtscTorontoSupportPageLive } from "@/hooks/usePayloadLive";
+import { getMediaUrl } from "@/services/api";
+
 import lounge from "@/assets/Algoma-Bear-Visit-21.avif";
 import judithImg from "@/assets/Toronto Station Chaplin And manager-Rev.Judith Alltree.png";
 import heroBg from "@/assets/SeasurferSupport.avif"; 
@@ -83,7 +87,7 @@ const VisitForm = ({ onClose }: { onClose: () => void }) => {
   );
 };
 
-const ChaplainForm = ({ onClose }: { onClose: () => void }) => {
+const ChaplainForm = ({ onClose, directWhatsAppUrl }: { onClose: () => void; directWhatsAppUrl: string }) => {
   const [form, setForm] = useState({ name: "", contact: "", message: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -141,7 +145,7 @@ const ChaplainForm = ({ onClose }: { onClose: () => void }) => {
         </div>
         
         <a 
-          href="https://wa.me/16472953219" 
+          href={directWhatsAppUrl} 
           target="_blank" 
           rel="noreferrer" 
           className="w-full bg-[#25D366] hover:bg-[#20b858] text-white font-bold h-12 flex gap-2 items-center justify-center rounded-md transition-colors"
@@ -211,9 +215,70 @@ const GeneralSupportForm = ({ onClose }: { onClose: () => void }) => {
 // ==========================================
 
 const Support = () => {
+  const { data } = useMtscTorontoSupportPageLive();
+
   const [activeForm, setActiveForm] = useState<string | null>(null);
   const [isHaircutOpen, setIsHaircutOpen] = useState(false);
   const formContainerRef = useRef<HTMLDivElement>(null);
+
+  // Dynamic values with complete fallbacks
+  const heroBadge = data?.hero_badge_text || "Seafarer Support";
+  const heroTitle = data?.hero_title || "Support While You’re at Port";
+  const heroSubtitle = data?.hero_subtitle || "Wherever you’re from, you are welcome here.\nWe’re here to support you with practical help, connection, and care while you’re in Toronto.";
+  const heroResolvedBg = getMediaUrl(data?.hero_bg_image, heroBg) || heroBg;
+
+  const quickAccessTitle = data?.quick_access_title || "How Can We Help You Today?";
+  const barberWhatsApp = data?.barber_whatsapp_url || "https://wa.me/14272588449";
+  const parcelPortalUrl = data?.parcel_portal_url || "https://parcelservice.mtsc.ca";
+  const haircutIframeUrl = data?.haircut_iframe_url || "https://fadekingzmobilebarber.square.site/";
+  const chaplainDirectWhatsApp = data?.chaplain_whatsapp_url || "https://wa.me/16472953219";
+
+  const reassuranceTitle = data?.reassurance_title || "You Are Not Alone";
+  const reassuranceIntro = data?.reassurance_intro || "We support seafarers from around the world with:";
+  const reassuranceImg = getMediaUrl(data?.reassurance_image, lounge) || lounge;
+  const reassurancePoints = (data?.reassurance_points && data.reassurance_points.length > 0)
+    ? data.reassurance_points.map((p: any) => (typeof p === 'object' ? p.text : p))
+    : [
+        "Free Wi-Fi access",
+        "Transportation assistance",
+        "Friendly conversation and a place to relax",
+        "Emotional and spiritual support",
+        "Help with practical needs while in port",
+      ];
+
+  const howItWorksTitle = data?.how_it_works_title || "Getting Support is Easy";
+  const step1 = data?.step1_title || "Choose the service you need";
+  const step2 = data?.step2_title || "Fill out a quick request form";
+  const step3 = data?.step3_title || "Our team will contact you shortly";
+  const urgentNote = data?.urgent_contact_note || "If urgent, contact us directly below.";
+
+  const immediateHelpTitle = data?.immediate_help_title || "Need Immediate Help?";
+  const phoneLabel = data?.phone_label || "Phone: +1 647-295-3219";
+  const phoneTel = data?.phone_tel || "+16472953219";
+  const contactWhatsApp = data?.contact_whatsapp_url || "https://wa.me/16472953219";
+  const contactEmail = data?.contact_email || "glutenfreepriest@gmail.com";
+
+  const findStationLink = data?.find_station_link || "https://mtsc.ca/contact/#find-station";
+  const welfareEmail = data?.welfare_email || "crewhelp@mtsmail.org";
+  const happySeaTitle = data?.happy_sea_title || "Happy at Sea App";
+  const happySeaDesc = data?.happy_sea_desc || "Connect instantly with a chaplain via our 24hr chat service.";
+  const appStoreUrl = data?.app_store_url || "https://apps.apple.com/us/app/happy-at-sea/id6447320913";
+  const playStoreUrl = data?.play_store_url || "https://play.google.com/store/apps/details?id=org.missiontoseafarers.app&hl=en_IN";
+
+  const visitTitle = data?.visit_title || "Visit Us at the Port of Toronto";
+  const addressLine1 = data?.address_line1 || "Cruise Ship Terminal";
+  const addressLine2 = data?.address_line2 || "8 Unwin Avenue, Toronto";
+  const openingHours = data?.opening_hours_text || "Check with our team for daily operating hours.";
+  const mapEmbedUrl = data?.map_embed_url || "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2887.497161490382!2d-79.347566!3d43.63782369999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89d4cb1d39382c3d%3A0x48c47df25b0c53d3!2s8%20Unwin%20Ave%2C%20Toronto%2C%20ON%20M5A%203L1%2C%20Canada!5e0!3m2!1sen!2sin!4v1777293037926!5m2!1sen!2sin";
+
+  const teamTitle = data?.team_title || "Meet Your Support Team";
+  const teamSubtitle = data?.team_subtitle || "Our team is here to welcome you, listen, and support you during your time in port.";
+  const chaplainName = data?.chaplain_name || "Rev. Judith Alltree";
+  const chaplainRole = data?.chaplain_role || "Station Chaplain";
+  const chaplainImage = getMediaUrl(data?.chaplain_image, judithImg) || judithImg;
+
+  const languageTitle = data?.language_title || "We Welcome Seafarers from Around the World";
+  const languageSubtitle = data?.language_subtitle || "If English is not your first language, we will do our best to support you.";
 
   const quickAccessCards = [
     { id: 'haircut', icon: Scissors, title: "Book a Haircut", desc: "Book Online" },
@@ -229,7 +294,7 @@ const Support = () => {
   const renderActiveForm = () => {
     switch (activeForm) {
       case 'visit': return <VisitForm onClose={handleCloseForm} />;
-      case 'chaplain': return <ChaplainForm onClose={handleCloseForm} />;
+      case 'chaplain': return <ChaplainForm onClose={handleCloseForm} directWhatsAppUrl={chaplainDirectWhatsApp} />;
       case 'support': return <GeneralSupportForm onClose={handleCloseForm} />;
       default: return null;
     }
@@ -237,31 +302,28 @@ const Support = () => {
 
   return (
     <>
-      {/* 1. Hero Section - UPDATED TO NAVY UI */}
+      {/* 1. Hero Section */}
       <section className="relative pt-28 pb-20 md:pt-36 md:pb-28 overflow-hidden bg-navy min-h-[45vh] flex items-center justify-center border-b border-navy-dark">
-        {/* Background Image & Overlays */}
         <div className="absolute inset-0 z-0">
           <img 
-            src={heroBg} 
+            src={heroResolvedBg} 
             alt="Seafarer Support Background" 
             className="w-full h-full object-cover object-center opacity-40 mix-blend-overlay" 
           />
           <div className="absolute inset-0 bg-gradient-to-t from-navy-dark via-navy/60 to-transparent" />
         </div>
         
-        {/* Hero Content */}
         <div className="container-page relative z-10 text-center max-w-4xl mx-auto">
           <div className="mb-6 flex justify-center">
             <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-coral/20 text-coral-light text-xs font-extrabold uppercase tracking-widest border border-coral/30">
-              <Heart className="w-4 h-4 text-coral-light" /> Seafarer Support
+              <Heart className="w-4 h-4 text-coral-light" /> {heroBadge}
             </span>
           </div>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6">
-            Support While You’re at Port
+            {heroTitle}
           </h1>
-          <p className="text-lg md:text-xl text-white/80 leading-relaxed font-medium">
-            Wherever you’re from, you are welcome here.<br className="hidden md:block" />
-            We’re here to support you with practical help, connection, and care while you’re in Toronto.
+          <p className="text-lg md:text-xl text-white/80 leading-relaxed font-medium whitespace-pre-line">
+            {heroSubtitle}
           </p>
         </div>
       </section>
@@ -270,7 +332,7 @@ const Support = () => {
       <section id="quick-access" className="py-20 bg-white scroll-mt-10">
         <div className="container-page">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-navy">How Can We Help You Today?</h2>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-navy">{quickAccessTitle}</h2>
           </div>
 
           {/* ON-PAGE CARDS */}
@@ -280,7 +342,7 @@ const Support = () => {
                 return (
                   <a
                     key={card.id}
-                    href="https://parcelservice.mtsc.ca"
+                    href={parcelPortalUrl}
                     target="_blank"
                     rel="noreferrer"
                     className="p-6 rounded-2xl border text-left transition-all hover:shadow-card hover:-translate-y-1 flex flex-col items-start border-border bg-white cursor-pointer group"
@@ -313,7 +375,7 @@ const Support = () => {
                 return (
                   <a
                     key={card.id}
-                    href="https://wa.me/14272588449"
+                    href={barberWhatsApp}
                     target="_blank"
                     rel="noreferrer"
                     className="p-6 rounded-2xl border text-left transition-all hover:shadow-card hover:-translate-y-1 flex flex-col items-start border-border bg-white cursor-pointer group"
@@ -333,7 +395,6 @@ const Support = () => {
                   key={card.id}
                   onClick={() => {
                     setActiveForm(card.id);
-                    // Add a small timeout to ensure the form is rendered before scrolling
                     setTimeout(() => {
                       formContainerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
                     }, 100);
@@ -349,7 +410,6 @@ const Support = () => {
             })}
           </div>
 
-          {/* Attached Ref to the container rendering the active form */}
           <div ref={formContainerRef} className="max-w-3xl mx-auto scroll-mt-20">
             {renderActiveForm()}
           </div>
@@ -360,23 +420,17 @@ const Support = () => {
       <section className="py-20 bg-warm-gray">
         <div className="container-page grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div className="rounded-3xl overflow-hidden shadow-soft aspect-[5/4]">
-            <img src={lounge} alt="Seafarers lounge" className="h-full w-full object-cover" loading="lazy" />
+            <img src={reassuranceImg} alt="Seafarers lounge" className="h-full w-full object-cover" loading="lazy" />
           </div>
           <div>
             <h2 className="text-3xl md:text-4xl font-extrabold text-navy leading-tight">
-              You Are Not Alone
+              {reassuranceTitle}
             </h2>
             <p className="mt-5 text-lg text-text-mid font-medium leading-relaxed">
-              We support seafarers from around the world with:
+              {reassuranceIntro}
             </p>
             <ul className="mt-6 space-y-4">
-              {[
-                "Free Wi-Fi access",
-                "Transportation assistance",
-                "Friendly conversation and a place to relax",
-                "Emotional and spiritual support",
-                "Help with practical needs while in port"
-              ].map((t) => (
+              {reassurancePoints.map((t: string) => (
                 <li key={t} className="flex gap-4 items-center">
                   <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-coral/10 text-coral">
                     <HeartHandshake className="h-5 w-5" />
@@ -392,27 +446,25 @@ const Support = () => {
       {/* 4. How It Works */}
       <section className="py-20 bg-white text-center border-b border-warm-gray">
         <div className="container-page">
-          <h2 className="text-3xl md:text-4xl font-extrabold text-navy">Getting Support is Easy</h2>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-navy">{howItWorksTitle}</h2>
           <div className="mt-14 grid sm:grid-cols-3 gap-8 max-w-4xl mx-auto">
             <div className="flex flex-col items-center">
               <div className="h-16 w-16 rounded-full bg-navy text-white flex items-center justify-center font-black text-2xl mb-6 shadow-md">1</div>
-              <h3 className="font-bold text-navy text-xl">Choose the service you need</h3>
+              <h3 className="font-bold text-navy text-xl">{step1}</h3>
             </div>
             <div className="flex flex-col items-center relative">
-              {/* Connecting Line hidden on mobile */}
               <div className="hidden sm:block absolute top-8 -left-[50%] w-full h-[2px] bg-warm-gray -z-10"></div>
               <div className="h-16 w-16 rounded-full bg-coral text-white flex items-center justify-center font-black text-2xl mb-6 shadow-md">2</div>
-              <h3 className="font-bold text-navy text-xl">Fill out a quick request form</h3>
+              <h3 className="font-bold text-navy text-xl">{step2}</h3>
             </div>
             <div className="flex flex-col items-center relative">
-               {/* Connecting Line hidden on mobile */}
                <div className="hidden sm:block absolute top-8 -left-[50%] w-full h-[2px] bg-warm-gray -z-10"></div>
               <div className="h-16 w-16 rounded-full bg-coral-light text-white flex items-center justify-center font-black text-2xl mb-6 shadow-md">3</div>
-              <h3 className="font-bold text-navy text-xl">Our team will contact you shortly</h3>
+              <h3 className="font-bold text-navy text-xl">{step3}</h3>
             </div>
           </div>
           <p className="mt-12 text-lg font-bold text-coral flex items-center justify-center gap-2 bg-coral/10 py-4 px-6 rounded-full inline-flex">
-            If urgent, contact us directly below.
+            {urgentNote}
           </p>
         </div>
       </section>
@@ -420,17 +472,17 @@ const Support = () => {
       {/* 5. Contact / Emergency Support */}
       <section className="py-20 bg-navy text-white">
         <div className="container-page text-center">
-          <h2 className="text-3xl text-white md:text-4xl font-extrabold mb-10">Need Immediate Help?</h2>
+          <h2 className="text-3xl text-white md:text-4xl font-extrabold mb-10">{immediateHelpTitle}</h2>
           
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4 md:gap-6 mb-16">
-            <a href="tel:+16472953219" className="flex items-center justify-center gap-3 bg-white/10 hover:bg-white/20 px-8 py-4 rounded-full transition-colors font-bold text-lg w-full sm:w-auto">
-              <Phone className="h-6 w-6" /> Phone: +1 647-295-3219
+            <a href={`tel:${phoneTel}`} className="flex items-center justify-center gap-3 bg-white/10 hover:bg-white/20 px-8 py-4 rounded-full transition-colors font-bold text-lg w-full sm:w-auto">
+              <Phone className="h-6 w-6" /> {phoneLabel}
             </a>
-            <a href="https://wa.me/16472953219" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#20b858] px-8 py-4 rounded-full transition-colors font-bold text-white text-lg w-full sm:w-auto">
+            <a href={contactWhatsApp} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#20b858] px-8 py-4 rounded-full transition-colors font-bold text-white text-lg w-full sm:w-auto">
               <MessageCircle className="h-6 w-6" /> WhatsApp
             </a>
-            <a href="mailto:glutenfreepriest@gmail.com" className="flex items-center justify-center gap-3 bg-white/10 hover:bg-white/20 px-8 py-4 rounded-full transition-colors font-bold text-lg w-full sm:w-auto">
-              Email: glutenfreepriest@gmail.com
+            <a href={`mailto:${contactEmail}`} className="flex items-center justify-center gap-3 bg-white/10 hover:bg-white/20 px-8 py-4 rounded-full transition-colors font-bold text-lg w-full sm:w-auto">
+              Email: {contactEmail}
             </a>
           </div>
 
@@ -444,14 +496,14 @@ const Support = () => {
             <ul className="space-y-6 text-lg font-medium text-white/90 relative z-10 mb-10">
               <li className="flex items-start gap-4">
                 <MapPin className="h-7 w-7 text-coral shrink-0" />
-                <a href="https://mtsc.ca/contact/#find-station" target="_blank" rel="noreferrer" className="hover:text-coral transition-colors underline underline-offset-4 decoration-white/30">
+                <a href={findStationLink} target="_blank" rel="noreferrer" className="hover:text-coral transition-colors underline underline-offset-4 decoration-white/30">
                   Find a Mission to Seafarers station at a Canadian port
                 </a>
               </li>
               <li className="flex items-start gap-4">
                 <HeartHandshake className="h-7 w-7 text-coral shrink-0" />
                 <span>
-                  Get help and support on a welfare or justice issue: <a href="mailto:crewhelp@mtsmail.org" className="font-bold text-white hover:text-coral transition-colors underline underline-offset-4 decoration-white/30">crewhelp@mtsmail.org</a>
+                  Get help and support on a welfare or justice issue: <a href={`mailto:${welfareEmail}`} className="font-bold text-white hover:text-coral transition-colors underline underline-offset-4 decoration-white/30">{welfareEmail}</a>
                 </span>
               </li>
             </ul>
@@ -463,14 +515,14 @@ const Support = () => {
               </div>
               <div className="flex-1 text-center md:text-left">
                 <h4 className="text-2xl font-bold text-navy mb-2 flex items-center justify-center md:justify-start gap-2">
-                  <Smartphone className="h-6 w-6 text-coral" /> Happy at Sea App
+                  <Smartphone className="h-6 w-6 text-coral" /> {happySeaTitle}
                 </h4>
-                <p className="text-text-mid mb-6 text-lg font-medium">Connect instantly with a chaplain via our 24hr chat service.</p>
+                <p className="text-text-mid mb-6 text-lg font-medium">{happySeaDesc}</p>
                 <div className="flex flex-wrap gap-4 justify-center md:justify-start">
-                  <a href="https://apps.apple.com/us/app/happy-at-sea/id6447320913" target="_blank" rel="noreferrer" className="inline-block transition-transform hover:scale-105">
+                  <a href={appStoreUrl} target="_blank" rel="noreferrer" className="inline-block transition-transform hover:scale-105">
                     <img src={appStoreBtn} alt="Download on the App Store" className="h-12 w-auto object-contain" />
                   </a>
-                  <a href="https://play.google.com/store/apps/details?id=org.missiontoseafarers.app&hl=en_IN" target="_blank" rel="noreferrer" className="inline-block transition-transform hover:scale-105">
+                  <a href={playStoreUrl} target="_blank" rel="noreferrer" className="inline-block transition-transform hover:scale-105">
                     <img src={googlePlayBtn} alt="Get it on Google Play" className="h-12 w-auto object-contain" />
                   </a>
                 </div>
@@ -484,28 +536,28 @@ const Support = () => {
       <section className="py-20 bg-white">
         <div className="container-page grid lg:grid-cols-2 gap-12 items-center">
           <div>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-navy">Visit Us at the Port of Toronto</h2>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-navy">{visitTitle}</h2>
             <ul className="mt-8 space-y-6">
               <li className="flex items-start gap-4 p-6 bg-warm-gray rounded-2xl">
                 <MapPin className="h-8 w-8 text-coral shrink-0" />
                 <div>
                   <strong className="block text-navy text-lg mb-1">Address:</strong>
-                  <span className="text-text-mid font-medium block">Cruise Ship Terminal</span>
-                  <span className="text-text-mid font-medium">8 Unwin Avenue, Toronto</span>
+                  <span className="text-text-mid font-medium block">{addressLine1}</span>
+                  <span className="text-text-mid font-medium">{addressLine2}</span>
                 </div>
               </li>
               <li className="flex items-start gap-4 p-6 bg-warm-gray rounded-2xl">
                 <Clock className="h-8 w-8 text-coral shrink-0" />
                 <div>
                   <strong className="block text-navy text-lg mb-1">Opening Hours:</strong>
-                  <span className="text-text-mid font-medium">Check with our team for daily operating hours.</span>
+                  <span className="text-text-mid font-medium">{openingHours}</span>
                 </div>
               </li>
             </ul>
           </div>
           <div className="aspect-square md:aspect-video lg:aspect-square bg-warm-gray rounded-3xl shadow-soft flex items-center justify-center overflow-hidden border-4 border-white">
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2887.497161490382!2d-79.347566!3d43.63782369999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89d4cb1d39382c3d%3A0x48c47df25b0c53d3!2s8%20Unwin%20Ave%2C%20Toronto%2C%20ON%20M5A%203L1%2C%20Canada!5e0!3m2!1sen!2sin!4v1777293037926!5m2!1sen!2sin"
+              src={mapEmbedUrl}
               className="w-full h-full"
               style={{ border: 0 }}
               allowFullScreen
@@ -516,31 +568,31 @@ const Support = () => {
         </div>
       </section>
 
-      {/* 7 & 8. Language Accessibility & Support Team (Merged Sections) */}
+      {/* 7 & 8. Language Accessibility & Support Team */}
       <section className="py-24 bg-warm-gray">
         <div className="container-page">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             
             {/* Trust / Human Touch */}
             <div className="text-center lg:text-left">
-              <h2 className="text-3xl md:text-4xl font-extrabold text-navy mb-6">Meet Your Support Team</h2>
+              <h2 className="text-3xl md:text-4xl font-extrabold text-navy mb-6">{teamTitle}</h2>
               <p className="text-xl text-text-mid max-w-lg mx-auto lg:mx-0 mb-14 font-medium leading-relaxed">
-                Our team is here to welcome you, listen, and support you during your time in port.
+                {teamSubtitle}
               </p>
               
               <div className="flex flex-col items-center lg:items-start group">
                 <div className="w-48 h-48 mb-6 overflow-hidden rounded-full shadow-lg ring-8 ring-white transition-transform duration-300 group-hover:scale-105">
                   <img 
-                    src={judithImg} 
-                    alt="Rev. Judith Alltree" 
+                    src={chaplainImage} 
+                    alt={chaplainName} 
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <h3 className="text-2xl font-extrabold text-navy">Rev. Judith Alltree</h3>
-                <p className="text-coral font-bold mt-1 text-lg mb-5">Station Chaplain</p>
+                <h3 className="text-2xl font-extrabold text-navy">{chaplainName}</h3>
+                <p className="text-coral font-bold mt-1 text-lg mb-5">{chaplainRole}</p>
                 
                 <a 
-                  href="https://wa.me/16472953219" 
+                  href={chaplainDirectWhatsApp} 
                   target="_blank" 
                   rel="noreferrer" 
                   className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#20b858] text-white px-6 py-3 rounded-full font-bold transition-colors shadow-sm"
@@ -553,9 +605,9 @@ const Support = () => {
             {/* Language Accessibility */}
             <div className="bg-coral text-white rounded-3xl p-10 md:p-14 shadow-soft text-center lg:text-left h-full flex flex-col justify-center">
               <Globe className="h-16 w-16 mb-6 text-white mx-auto lg:mx-0" />
-              <h2 className="text-3xl md:text-4xl font-extrabold mb-6 leading-tight">We Welcome Seafarers from Around the World</h2>
+              <h2 className="text-3xl md:text-4xl font-extrabold mb-6 leading-tight">{languageTitle}</h2>
               <p className="text-xl md:text-2xl text-white/90 font-medium leading-relaxed">
-                If English is not your first language, we will do our best to support you.
+                {languageSubtitle}
               </p>
             </div>
 
@@ -575,7 +627,7 @@ const Support = () => {
           <div className="flex-1 overflow-hidden p-2">
             <div className="w-full h-full bg-white rounded-lg border border-border overflow-hidden">
               <iframe
-                src="https://fadekingzmobilebarber.square.site/"
+                src={haircutIframeUrl}
                 title="Toronto Haircut Service Booking"
                 className="w-full h-full border-none block bg-transparent"
                 allow="payment"
