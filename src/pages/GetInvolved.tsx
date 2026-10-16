@@ -9,7 +9,11 @@ import {
   Heart, Package, Briefcase, Users, DollarSign, HandHeart, CheckCircle2, X, Gift
 } from "lucide-react";
 
-// Image import for the Hero Background & Maritime Design
+// Payload CMS Live Hook & Media Resolver
+import { useMtscTorontoGetInvolvedPageLive } from "@/hooks/usePayloadLive";
+import { getMediaUrl } from "@/services/api";
+
+// Image import for the Hero Background & Maritime Design Fallbacks
 import getInvolvedBg from "@/assets/GetInvoled.avif";
 import maritimeImage from "@/assets/GTimagemaritime.jpg";
 
@@ -72,7 +76,6 @@ const DonateGoodsForm = ({ onClose }: FormProps) => {
           <Label>Donation Type *</Label>
           <select required value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} className="flex h-10 w-full rounded-md border border-input bg-warm-gray px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring mt-1.5">
             <option value="" disabled>Select a category...</option>
-            {/* The values below must exactly match the options defined in your Google Form */}
             <option value="Snacks and refreshments">Snacks and refreshments</option>
             <option value="Gift cards">Gift cards</option>
             <option value="Technology and Wi-Fi support">Technology and Wi-Fi support</option>
@@ -236,9 +239,75 @@ const VolunteerForm = ({ onClose }: FormProps) => {
 // ==========================================
 
 const GetInvolved = () => {
+  const { data } = useMtscTorontoGetInvolvedPageLive();
+
   const [activeForm, setActiveForm] = useState<string | null>(null);
   const [isDonateActive, setIsDonateActive] = useState(false);
   const formContainerRef = useRef<HTMLDivElement>(null);
+
+  // Dynamic values with complete fallbacks
+  const heroBadge = data?.hero_badge_text || "Get Involved";
+  const heroTitle = data?.hero_title || "Get Involved with Mission to Seafarers Toronto";
+  const heroSubtitle = data?.hero_subtitle || "There are many ways to support and help create a welcoming place for seafarers arriving at the Port of Toronto. Whether you choose to volunteer, donate, provide in-kind support, or partner with us, your support helps ensure that seafarers feel cared for.";
+  const heroResolvedBg = getMediaUrl(data?.hero_bg_image, getInvolvedBg) || getInvolvedBg;
+
+  const donateEyebrow = data?.donate_eyebrow || "Donate";
+  const donateTitle = data?.donate_title || "Help Care for Seafarers";
+  const donateDesc = data?.donate_description || "Every gift helps us provide hospitality, practical support, transportation, Wi-Fi, refreshments, haircuts, and a welcoming place for seafarers visiting Toronto.";
+
+  const monthlyTitle = data?.monthly_card_title || "Monthly Giving";
+  const monthlyDesc = data?.monthly_card_desc || "Become a monthly donor and help provide ongoing care and support throughout the year. Monthly gifts help us plan ahead.";
+  const monthlyBullets = (data?.monthly_bullets && data.monthly_bullets.length > 0)
+    ? data.monthly_bullets.map((b: any) => (typeof b === 'object' ? b.text : b))
+    : [
+        "$15/mo provides refreshments & hospitality",
+        "$25/mo supports transportation & Wi-Fi",
+        "$50/mo provides practical assistance & care",
+      ];
+  const monthlyBtnLabel = data?.monthly_btn_label || "Become a Monthly Donor";
+
+  const onetimeTitle = data?.onetime_card_title || "One-Time Gift";
+  const onetimeDesc = data?.onetime_card_desc || "Make a one-time donation to support Mission to Seafarers Toronto. Your gift helps create a welcoming space and care for seafarers right when they arrive.";
+  const onetimeBtnLabel = data?.onetime_btn_label || "Make a One-Time Gift";
+
+  const donateFooterNote = data?.donate_footer_note || "All donations are securely processed via CanadaHelps in support of the Toronto station and the national mission to care for seafarers across Canada.";
+  const canadahelpsIframeUrl = data?.canadahelps_iframe_url || "https://www.canadahelps.org/en/dn/145961";
+
+  const waysEyebrow = data?.ways_eyebrow || "Other Ways to Help";
+  const waysTitle = data?.ways_title || "Choose How You Would Like to Support";
+  const waysResolvedBg = getMediaUrl(data?.ways_bg_image, maritimeImage) || maritimeImage;
+
+  const inkindTitle = data?.inkind_title || "In-Kind Gifts";
+  const inkindDesc = data?.inkind_desc || "We are always grateful for donations that help us create a welcoming space. Examples include:";
+  const inkindBullets = (data?.inkind_bullets && data.inkind_bullets.length > 0)
+    ? data.inkind_bullets.map((b: any) => (typeof b === 'object' ? b.text : b))
+    : [
+        "Snacks and refreshments",
+        "Gift cards",
+        "Technology and Wi-Fi support",
+        "Haircut supplies and personal care items",
+        "Furniture and lounge items for the station",
+      ];
+  const amazonWishlistUrl = data?.amazon_wishlist_url || "https://www.amazon.ca/hz/wishlist/ls/3C9KTQNHTZ0NM?ref_=wl_fv_le.";
+  const amazonWishlistLabel = data?.amazon_wishlist_label || "Order from our wishlist";
+
+  const partnershipTitle = data?.partnership_title || "Partnership Options";
+  const partnershipDesc = data?.partnership_desc || "We welcome support from local businesses, schools, and groups. You can support:";
+  const partnershipBullets = (data?.partnership_bullets && data.partnership_bullets.length > 0)
+    ? data.partnership_bullets.map((b: any) => (typeof b === 'object' ? b.text : b))
+    : [
+        "Local events & Volunteer activities",
+        "Hospitality and care for seafarers",
+        "Station furnishings and supplies",
+        "Haircut and wellness services",
+      ];
+  const partnershipNote = data?.partnership_note || "For larger corporate partnerships and national giving opportunities, please visit Mission to Seafarers Canada.";
+
+  const ctaTitle = data?.cta_title || "Every Act of Kindness Makes a Difference";
+  const ctaDesc = data?.cta_description || "From a warm drink and a haircut to a monthly donation or a few hours of volunteering, every act of support helps remind seafarers that they are not alone.";
+  const ctaDonateLabel = data?.cta_donate_label || "Donate Now";
+  const ctaVolunteerLabel = data?.cta_volunteer_label || "Become a Volunteer";
+  const ctaContactLabel = data?.cta_contact_label || "Contact the Station";
 
   // Helper to trigger donation form and scroll
   const handleDonateClick = (e?: React.MouseEvent) => {
@@ -247,7 +316,6 @@ const GetInvolved = () => {
     setTimeout(() => scrollToSection('donation-form'), 100);
   };
 
-  // Close the active non-donation forms if clicked outside of it
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (activeForm && formContainerRef.current && !formContainerRef.current.contains(event.target as Node)) {
@@ -266,7 +334,6 @@ const GetInvolved = () => {
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
-      // Offset for sticky headers
       const y = element.getBoundingClientRect().top + window.scrollY - 100;
       window.scrollTo({ top: y, behavior: 'smooth' });
     }
@@ -289,28 +356,26 @@ const GetInvolved = () => {
 
   return (
     <>
-      {/* ─────────── NEW HERO SECTION WITH BACKGROUND IMAGE ─────────── */}
+      {/* ─────────── HERO SECTION ─────────── */}
       <section className="relative pt-28 pb-20 md:pt-36 md:pb-28 overflow-hidden bg-navy min-h-[45vh] flex items-center justify-center">
-        {/* Background Image & Overlays */}
         <div className="absolute inset-0 z-0">
           <img 
-            src={getInvolvedBg} 
+            src={heroResolvedBg} 
             alt="Get Involved Background" 
             className="w-full h-full object-cover object-center opacity-40 mix-blend-overlay" 
           />
           <div className="absolute inset-0 bg-gradient-to-t from-navy-dark via-navy/60 to-transparent" />
         </div>
         
-        {/* Hero Content */}
         <div className="container-page relative z-10 text-center max-w-4xl mx-auto">
           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-coral/20 text-coral-light text-xs font-extrabold uppercase tracking-widest mb-6 border border-coral/30">
-            Get Involved
+            {heroBadge}
           </span>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6">
-            Get Involved with Mission to Seafarers Toronto
+            {heroTitle}
           </h1>
           <p className="text-lg md:text-xl text-white/80 leading-relaxed font-medium">
-            There are many ways to support and help create a welcoming place for seafarers arriving at the Port of Toronto. Whether you choose to volunteer, donate, provide in-kind support, or partner with us, your support helps ensure that seafarers feel cared for.
+            {heroSubtitle}
           </p>
         </div>
       </section>
@@ -323,10 +388,10 @@ const GetInvolved = () => {
             {/* Left Content Context */}
             <div className={`${isDonateActive ? 'lg:col-span-5' : 'lg:col-span-12'} space-y-8`}>
               <div className={`${!isDonateActive && 'text-center max-w-2xl mx-auto'}`}>
-                <span className={`eyebrow flex items-center gap-2 mb-3 ${!isDonateActive && 'justify-center'}`}><DollarSign className="w-5 h-5" /> Donate</span>
-                <h2 className="text-3xl md:text-4xl font-extrabold text-navy mb-4">Help Care for Seafarers</h2>
+                <span className={`eyebrow flex items-center gap-2 mb-3 ${!isDonateActive && 'justify-center'}`}><DollarSign className="w-5 h-5" /> {donateEyebrow}</span>
+                <h2 className="text-3xl md:text-4xl font-extrabold text-navy mb-4">{donateTitle}</h2>
                 <p className="text-lg text-text-mid leading-relaxed">
-                  Every gift helps us provide hospitality, practical support, transportation, Wi-Fi, refreshments, haircuts, and a welcoming place for seafarers visiting Toronto.
+                  {donateDesc}
                 </p>
               </div>
 
@@ -334,39 +399,42 @@ const GetInvolved = () => {
                 {/* Monthly Giving Details */}
                 <div className="bg-warm-gray rounded-2xl p-6 md:p-8 border border-border relative overflow-hidden flex flex-col">
                   <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none"><Heart size={80} /></div>
-                  <h3 className="text-xl font-extrabold text-navy mb-3">Monthly Giving</h3>
+                  <h3 className="text-xl font-extrabold text-navy mb-3">{monthlyTitle}</h3>
                   <p className="text-sm text-text-mid mb-5 flex-grow">
-                    Become a monthly donor and help provide ongoing care and support throughout the year. Monthly gifts help us plan ahead.
+                    {monthlyDesc}
                   </p>
                   <ul className="space-y-3 mb-6">
-                    <li className="flex gap-2"><CheckCircle2 className="text-coral w-4 h-4 shrink-0 mt-0.5" /><span className="text-sm font-medium text-navy">$15/mo provides refreshments & hospitality</span></li>
-                    <li className="flex gap-2"><CheckCircle2 className="text-coral w-4 h-4 shrink-0 mt-0.5" /><span className="text-sm font-medium text-navy">$25/mo supports transportation & Wi-Fi</span></li>
-                    <li className="flex gap-2"><CheckCircle2 className="text-coral w-4 h-4 shrink-0 mt-0.5" /><span className="text-sm font-medium text-navy">$50/mo provides practical assistance & care</span></li>
+                    {monthlyBullets.map((pt: string, idx: number) => (
+                      <li key={idx} className="flex gap-2">
+                        <CheckCircle2 className="text-coral w-4 h-4 shrink-0 mt-0.5" />
+                        <span className="text-sm font-medium text-navy">{pt}</span>
+                      </li>
+                    ))}
                   </ul>
                   <Button onClick={handleDonateClick} className="w-full bg-navy hover:bg-navy-light text-white font-bold mt-auto">
-                    Become a Monthly Donor
+                    {monthlyBtnLabel}
                   </Button>
                 </div>
 
                 {/* One Time Gift Details */}
                 <div className="bg-white rounded-2xl p-6 md:p-8 border border-border shadow-soft relative overflow-hidden flex flex-col">
                   <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none"><HandHeart size={80} /></div>
-                  <h3 className="text-xl font-extrabold text-navy mb-3">One-Time Gift</h3>
+                  <h3 className="text-xl font-extrabold text-navy mb-3">{onetimeTitle}</h3>
                   <p className="text-sm text-text-mid mb-6 flex-grow">
-                    Make a one-time donation to support Mission to Seafarers Toronto. Your gift helps create a welcoming space and care for seafarers right when they arrive.
+                    {onetimeDesc}
                   </p>
                   <Button onClick={handleDonateClick} className="w-full bg-coral hover:bg-coral-light text-white font-bold mt-auto">
-                    Make a One-Time Gift
+                    {onetimeBtnLabel}
                   </Button>
                 </div>
               </div>
 
               <p className={`text-xs text-text-mid italic px-2 ${!isDonateActive && 'text-center'}`}>
-                All donations are securely processed via CanadaHelps in support of the Toronto station and the national mission to care for seafarers across Canada.
+                {donateFooterNote}
               </p>
             </div>
 
-            {/* Right Side - CanadaHelps Iframe Form (Only renders when active) */}
+            {/* Right Side - CanadaHelps Iframe Form */}
             {isDonateActive && (
               <div id="donation-form" className="lg:col-span-7 bg-warm-gray p-4 md:p-6 rounded-2xl border border-border shadow-card lg:sticky lg:top-24 animate-in slide-in-from-right-8 fade-in duration-500 scroll-mt-24">
                 <div className="flex items-center justify-between mb-5">
@@ -380,7 +448,7 @@ const GetInvolved = () => {
                 </div>
                 <div className="w-full bg-white rounded-xl border border-border overflow-hidden shadow-inner h-[750px] sm:h-[750px] md:h-[740px]">
                   <iframe
-                    src="https://www.canadahelps.org/en/dn/145961"
+                    src={canadahelpsIframeUrl}
                     title="CanadaHelps Secure Donation Form"
                     className="w-full h-full border-none block bg-transparent"
                     scrolling="auto"
@@ -396,25 +464,21 @@ const GetInvolved = () => {
 
       {/* Interactive Forms / Ways to Help Section */}
       <section id="ways-to-help" className="relative py-20 md:py-28 scroll-mt-24 overflow-hidden">
-        
-        {/* Background Image Added to this Section with Navy Blue Overlay */}
-        <div className="absolute inset-0 z-0 ">
+        <div className="absolute inset-0 z-0">
           <img 
-            src={maritimeImage} 
+            src={waysResolvedBg} 
             alt="Ways to help background" 
-            className="w-full h-full object-cover object-center " 
+            className="w-full h-full object-cover object-center" 
           />
-          {/* Blue overlay to match design and ensure text readability */}
           <div className="absolute inset-0 bg-gradient-to-b from-navy/80 via-navy/60 to-navy/90" />
         </div>
 
         <div className="container-page relative z-10">
           <div className="text-center mb-10">
-            {/* Styled "eyebrow" specifically for the dark background */}
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full  text-coral-light text-xs font-extrabold uppercase tracking-widest mb-4 border border-coral/30">
-              Other Ways to Help
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-coral-light text-xs font-extrabold uppercase tracking-widest mb-4 border border-coral/30">
+              {waysEyebrow}
             </span>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-white">Choose How You Would Like to Support</h2>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-white">{waysTitle}</h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-12 max-w-4xl mx-auto">
@@ -442,76 +506,69 @@ const GetInvolved = () => {
           </div>
 
           <div id="ways-to-help-forms" className="max-w-3xl mx-auto scroll-mt-32" ref={formContainerRef}>
-            {
-              renderActiveForm()
-            }
+            {renderActiveForm()}
           </div>
         </div>
       </section>
 
-      {/* In-Kind Context & Partnership Context Content (Hidden when forms are active, visible generally) */}
+      {/* In-Kind & Partnership Context */}
       <section className={`py-16 bg-white border-t border-border transition-all duration-300 ${activeForm ? 'opacity-50 pointer-events-none hidden' : 'opacity-100 block'}`}>
         <div className="container-page grid md:grid-cols-2 gap-12">
           <div>
-            <h3 className="text-2xl font-extrabold text-navy mb-4 flex items-center gap-2"><Package className="text-coral" /> In-Kind Gifts</h3>
-            <p className="text-text-mid mb-4">We are always grateful for donations that help us create a welcoming space. Examples include:</p>
+            <h3 className="text-2xl font-extrabold text-navy mb-4 flex items-center gap-2"><Package className="text-coral" /> {inkindTitle}</h3>
+            <p className="text-text-mid mb-4">{inkindDesc}</p>
             <ul className="list-disc list-inside text-sm text-navy font-medium space-y-2 mb-6">
-              <li>Snacks and refreshments</li>
-              <li>Gift cards</li>
-              <li>Technology and Wi-Fi support</li>
-              <li>Haircut supplies and personal care items</li>
-              <li>Furniture and lounge items for the station</li>
+              {inkindBullets.map((pt: string, idx: number) => (
+                <li key={idx}>{pt}</li>
+              ))}
             </ul>
             <div className="flex flex-wrap gap-3">
               <Button type="button" onClick={() => { setActiveForm('goods'); scrollToSection('ways-to-help'); }} variant="outline" className="border-navy text-navy hover:bg-navy hover:text-white form-trigger-btn">
                 Donate Goods Form
               </Button>
-              {/* External Wishlist Link */}
               <Button asChild variant="outline" className="border-coral text-coral hover:bg-coral hover:text-white">
-                <a href="https://www.amazon.ca/hz/wishlist/ls/3C9KTQNHTZ0NM?ref_=wl_fv_le." target="_blank" rel="noopener noreferrer">Order from our wishlist</a>
+                <a href={amazonWishlistUrl} target="_blank" rel="noopener noreferrer">{amazonWishlistLabel}</a>
               </Button>
             </div>
           </div>
           <div>
-            <h3 className="text-2xl font-extrabold text-navy mb-4 flex items-center gap-2"><Briefcase className="text-coral" /> Partnership Options</h3>
-            <p className="text-text-mid mb-4">We welcome support from local businesses, schools, and groups. You can support:</p>
+            <h3 className="text-2xl font-extrabold text-navy mb-4 flex items-center gap-2"><Briefcase className="text-coral" /> {partnershipTitle}</h3>
+            <p className="text-text-mid mb-4">{partnershipDesc}</p>
             <ul className="list-disc list-inside text-sm text-navy font-medium space-y-2 mb-6">
-              <li>Local events & Volunteer activities</li>
-              <li>Hospitality and care for seafarers</li>
-              <li>Station furnishings and supplies</li>
-              <li>Haircut and wellness services</li>
+              {partnershipBullets.map((pt: string, idx: number) => (
+                <li key={idx}>{pt}</li>
+              ))}
             </ul>
             <Button type="button" onClick={() => { setActiveForm('partner'); scrollToSection('ways-to-help'); }} variant="outline" className="border-navy text-navy hover:bg-navy hover:text-white form-trigger-btn">Partner with the Toronto Station</Button>
-            <p className="text-xs text-text-mid mt-4 italic">For larger corporate partnerships and national giving opportunities, please visit Mission to Seafarers Canada.</p>
+            <p className="text-xs text-text-mid mt-4 italic">{partnershipNote}</p>
           </div>
         </div>
       </section>
 
-     
       {/* Final Call to Action */}
-      <section className="py-20  bg-coral text-white text-center">
+      <section className="py-20 bg-coral text-white text-center">
         <div className="container-page max-w-4xl mx-auto">
           <Heart className="mx-auto h-12 w-12 text-white/90 mb-6" />
-          <h2 className="text-3xl md:text-4xl font-extrabold !text-white mb-6">Every Act of Kindness Makes a Difference</h2>
+          <h2 className="text-3xl md:text-4xl font-extrabold !text-white mb-6">{ctaTitle}</h2>
           <p className="text-lg text-white/90 mb-10 max-w-3xl mx-auto">
-            From a warm drink and a haircut to a monthly donation or a few hours of volunteering, every act of support helps remind seafarers that they are not alone.
+            {ctaDesc}
           </p>
 
           <div className="flex flex-col sm:flex-row flex-wrap justify-center items-center gap-3 sm:gap-4 px-4 sm:px-0">
             <Button size="lg" onClick={handleDonateClick} className="w-full sm:w-auto bg-white hover:bg-gray-100 text-coral font-bold h-14 px-8">
-              Donate Now
+              {ctaDonateLabel}
             </Button>
 
             <Button size="lg" variant="outline" type="button" onClick={() => { setActiveForm('volunteer'); scrollToSection('ways-to-help'); }} className="w-full sm:w-auto form-trigger-btn border-2 border-white text-white hover:bg-white hover:text-navy bg-transparent font-bold h-14 px-6">
-              Become a Volunteer
+              {ctaVolunteerLabel}
             </Button>
 
             <Button size="lg" variant="outline" asChild className="w-full sm:w-auto border-2 border-white text-white hover:bg-white hover:text-navy bg-transparent font-bold h-14 px-6">
-              <Link to="/contact">Contact the Station</Link>
+              <Link to="/contact">{ctaContactLabel}</Link>
             </Button>
 
             <Button size="lg" variant="outline" asChild className="w-full sm:w-auto border-2 border-white text-white hover:bg-white hover:text-navy bg-transparent font-bold h-14 px-6">
-              <a href="https://www.amazon.ca/hz/wishlist/ls/3C9KTQNHTZ0NM?ref_=wl_fv_le." target="_blank" rel="noopener noreferrer">Order from our wishlist</a>
+              <a href={amazonWishlistUrl} target="_blank" rel="noopener noreferrer">{amazonWishlistLabel}</a>
             </Button>
           </div>
         </div>

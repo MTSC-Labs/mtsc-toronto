@@ -6,11 +6,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { Mail, Phone, MapPin, Clock, Send } from "lucide-react";
 
-// Using the About image as a temporary placeholder background 
-// since you mentioned you don't have a specific Contact image yet.
+// Payload CMS Live Hook & Media Resolver
+import { useMtscTorontoContactPageLive } from "@/hooks/usePayloadLive";
+import { getMediaUrl } from "@/services/api";
+
+// Banner Placeholder Image Fallback
 import contactBg from "@/assets/contact-banner.jpg"; 
 
-const interests = [
+const defaultInterests = [
   "Seafarer support",
   "Volunteering",
   "Donating goods or services",
@@ -19,50 +22,82 @@ const interests = [
   "Other",
 ];
 
-const Contact = () => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const formRef = useRef(null);
+const defaultInfoParagraphs = [
+  "Mission to Seafarers Toronto operates as part of Mission to Seafarers Canada.",
+  "Local volunteer opportunities, station engagement, community support, and monthly and one-time donations are coordinated through the Toronto station.",
+  "Major gifts and national corporate partnerships are managed through the National Office, Mission to Seafarers Canada."
+];
 
-  // This handles the iframe finishing its load (meaning Google received the data)
+const Contact = () => {
+  const { data } = useMtscTorontoContactPageLive();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // Dynamic values with complete original fallbacks
+  const heroBadge = data?.hero_badge_text || "Contact";
+  const heroTitle = data?.hero_title || "Contact Mission to Seafarers Toronto";
+  const heroSubtitle = data?.hero_subtitle || "We would love to hear from you.";
+  const heroResolvedBg = getMediaUrl(data?.hero_bg_image, contactBg) || contactBg;
+
+  const stationTitle = data?.station_title || "Toronto Station";
+  const stationSubtitle = data?.station_subtitle || "Local support at the Port of Toronto.";
+  const stationLocation = data?.station_location_text || "Cruise Ship Terminal, 8 Unwin Ave, Toronto, ON M5A 1A1, Canada";
+  const stationEmail = data?.station_email || "glutenfreepriest@gmail.com";
+  const stationPhoneDisplay = data?.station_phone_display || "+1 416-469-5391";
+  const stationPhoneTel = data?.station_phone_tel || "+14164695391";
+  const stationHours = data?.station_hours_text || "By appointment and during ship visits";
+
+  const infoParagraphs = (data?.info_paragraphs && data.info_paragraphs.length > 0)
+    ? data.info_paragraphs.map((p: any) => (typeof p === 'object' ? p.text : p))
+    : defaultInfoParagraphs;
+
+  const formTitle = data?.form_title || "Send Us a Message";
+  const formSubtitle = data?.form_subtitle || "Whether you are a seafarer, volunteer, supporter, or community partner, we welcome your questions and inquiries.";
+  const formActionUrl = data?.form_action_url || "https://docs.google.com/forms/d/e/1FAIpQLSdDRLf8Fjde4Y-q1oUmoa_5JAbmAFp5TeG0RV3qjyVL3Aabhg/formResponse";
+  const formSubmitLabel = data?.form_submit_label || "Submit Inquiry";
+
+  const interestsList = (data?.form_interests && data.form_interests.length > 0)
+    ? data.form_interests.map((i: any) => (typeof i === 'object' ? i.label : i))
+    : defaultInterests;
+
+  // Handles iframe finish load (meaning Google received the data)
   const handleIframeLoad = () => {
     if (isSubmitting) {
       toast({
         title: "Thank You",
         description: "Your inquiry has been successfully sent. We will be in touch with you shortly.",
       });
-      setIsSubmitting(false); // Reset submitting state
+      setIsSubmitting(false);
       if (formRef.current) {
-        formRef.current.reset(); // Clear the form fields safely
+        formRef.current.reset();
       }
     }
   };
 
   return (
     <>
-      {/* Hero Section - Matched to Navy Style */}
+      {/* Hero Section */}
       <section className="relative pt-28 pb-20 md:pt-36 md:pb-28 overflow-hidden bg-navy min-h-[45vh] flex items-center justify-center border-b border-navy-dark">
-        {/* Background Image & Overlays */}
         <div className="absolute inset-0 z-0">
           <img 
-            src={contactBg} 
+            src={heroResolvedBg} 
             alt="Contact Background Placeholder" 
             className="w-full h-full object-cover object-center opacity-40 mix-blend-overlay" 
           />
           <div className="absolute inset-0 bg-gradient-to-t from-navy-dark via-navy/60 to-transparent" />
         </div>
         
-        {/* Hero Content */}
         <div className="container-page relative z-10 text-center max-w-4xl mx-auto">
           <div className="mb-6 flex justify-center">
             <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-coral/20 text-coral-light text-xs font-extrabold uppercase tracking-widest border border-coral/30">
-              <Mail className="w-4 h-4 text-coral-light" /> Contact
+              <Mail className="w-4 h-4 text-coral-light" /> {heroBadge}
             </span>
           </div>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6">
-            Contact Mission to Seafarers Toronto
+            {heroTitle}
           </h1>
           <p className="text-lg md:text-xl text-white/80 leading-relaxed font-medium">
-            We would love to hear from you.
+            {heroSubtitle}
           </p>
         </div>
       </section>
@@ -74,8 +109,8 @@ const Contact = () => {
           {/* Contact info */}
           <div className="lg:col-span-5 space-y-5">
             <div className="rounded-2xl bg-gradient-hero text-white p-7 md:p-8 shadow-soft">
-              <h2 className="text-2xl font-extrabold !text-white">Toronto Station</h2>
-              <p className="mt-2 text-white/85 text-sm">Local support at the Port of Toronto.</p>
+              <h2 className="text-2xl font-extrabold !text-white">{stationTitle}</h2>
+              <p className="mt-2 text-white/85 text-sm">{stationSubtitle}</p>
 
               <ul className="mt-7 space-y-4 text-sm">
                 <li className="flex gap-3.5">
@@ -84,7 +119,7 @@ const Contact = () => {
                   </span>
                   <span>
                     <span className="block text-white/60 text-[11px] uppercase font-bold tracking-widest">Location</span>
-                    Cruise Ship Terminal, 8 Unwin Ave, Toronto, ON M5A 1A1, Canada
+                    {stationLocation}
                   </span>
                 </li>
                 <li className="flex gap-3.5">
@@ -93,8 +128,8 @@ const Contact = () => {
                   </span>
                   <span>
                     <span className="block text-white/60 text-[11px] uppercase font-bold tracking-widest">Email</span>
-                    <a href="mailto:glutenfreepriest@gmail.com" className="text-white hover:text-coral-light transition-colors underline">
-                      glutenfreepriest@gmail.com
+                    <a href={`mailto:${stationEmail}`} className="text-white hover:text-coral-light transition-colors underline">
+                      {stationEmail}
                     </a>
                   </span>
                 </li>
@@ -104,8 +139,8 @@ const Contact = () => {
                   </span>
                   <span>
                     <span className="block text-white/60 text-[11px] uppercase font-bold tracking-widest">Phone</span>
-                    <a href="tel:+14164695391" className="text-white hover:text-coral-light transition-colors underline">
-                      +1 416-469-5391
+                    <a href={`tel:${stationPhoneTel}`} className="text-white hover:text-coral-light transition-colors underline">
+                      {stationPhoneDisplay}
                     </a>
                   </span>
                 </li>
@@ -115,22 +150,18 @@ const Contact = () => {
                   </span>
                   <span>
                     <span className="block text-white/60 text-[11px] uppercase font-bold tracking-widest">Hours</span>
-                    By appointment and during ship visits
+                    {stationHours}
                   </span>
                 </li>
               </ul>
             </div>
 
             <div className="rounded-2xl border border-border bg-warm-gray p-6 text-sm text-text-mid leading-relaxed">
-              <p className="mb-3">
-                Mission to Seafarers Toronto operates as part of Mission to Seafarers Canada.
-              </p>
-              <p className="mb-3">
-                Local volunteer opportunities, station engagement, community support, and monthly and one-time donations are coordinated through the Toronto station.
-              </p>
-              <p>
-                Major gifts and national corporate partnerships are managed through the National Office, Mission to Seafarers Canada.
-              </p>
+              {infoParagraphs.map((para: string, idx: number) => (
+                <p key={idx} className={idx < infoParagraphs.length - 1 ? "mb-3" : ""}>
+                  {para}
+                </p>
+              ))}
             </div>
           </div>
 
@@ -138,11 +169,11 @@ const Contact = () => {
           <div className="lg:col-span-7 rounded-2xl bg-warm-gray p-6 md:p-8 shadow-card space-y-5">
             <div className="flex items-center gap-2 mb-2">
               <Send className="h-6 w-6 text-coral" />
-              <h2 className="text-xl md:text-3xl font-extrabold text-navy">Send Us a Message</h2>
+              <h2 className="text-xl md:text-3xl font-extrabold text-navy">{formTitle}</h2>
             </div>
             
             <p className="text-gray-600 font-medium leading-relaxed pb-4 border-b border-gray-200">
-              Whether you are a seafarer, volunteer, supporter, or community partner, we welcome your questions and inquiries.
+              {formSubtitle}
             </p>
 
             {/* Hidden iframe triggers handleIframeLoad when Google Form finishes processing */}
@@ -156,7 +187,7 @@ const Contact = () => {
             <form 
               ref={formRef}
               className="space-y-5" 
-              action="https://docs.google.com/forms/d/e/1FAIpQLSdDRLf8Fjde4Y-q1oUmoa_5JAbmAFp5TeG0RV3qjyVL3Aabhg/formResponse" 
+              action={formActionUrl} 
               method="POST" 
               target="hidden_iframe"
               onSubmit={() => setIsSubmitting(true)}
@@ -200,7 +231,7 @@ const Contact = () => {
                     className="mt-1.5 flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm font-medium text-navy"
                   >
                     <option value="" disabled>Select an option...</option>
-                    {interests.map((i) => (
+                    {interestsList.map((i: string) => (
                       <option key={i} value={i}>{i}</option>
                     ))}
                   </select>
@@ -223,7 +254,7 @@ const Contact = () => {
                 disabled={isSubmitting}
                 className="w-full bg-coral hover:bg-coral-light text-white font-bold shadow-warm h-12"
               >
-                {isSubmitting ? "Sending..." : "Submit Inquiry"} <Send className="ml-2 h-4 w-4" />
+                {isSubmitting ? "Sending..." : formSubmitLabel} <Send className="ml-2 h-4 w-4" />
               </Button>
             </form>
           </div>
