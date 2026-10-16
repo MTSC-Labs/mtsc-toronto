@@ -41,6 +41,7 @@ import eventImg5 from "@/assets/event6.jpeg";
 import eventImg6 from "@/assets/event7.jpeg";
 import eventImg7 from "@/assets/event8.jpeg";
 import womenInMaritimeImg from "@/assets/newimg/Ho1Honouring Women in Maritime – From Policy to Practice.jpg";
+import torontoMeetImg from "@/assets/toronto-meet.png";
 
 const iconMap: Record<string, any> = {
   Lightbulb,
@@ -159,8 +160,115 @@ export default function Events() {
         </div>
       </section>
 
-      {/* 2. FEATURED EVENT SECTION */}
+      {/* 2b. MEET & GREET EVENT SECTION */}
       <section id="upcoming-events" className="py-20 lg:py-28 bg-warm-gray/30">
+        <div className="container max-w-6xl mx-auto px-4 md:px-6">
+
+          <div className="bg-white rounded-2xl shadow-soft border border-border overflow-hidden flex flex-col lg:flex-row">
+            {/* Event Image / Visual side */}
+            <div className="lg:w-2/5 bg-navy relative min-h-[300px]">
+              <img
+                src={torontoMeetImg}
+                alt="Meet and Greet with Secretary General The Venerable Dr. Peter Rouch"
+                className="absolute inset-0 w-full h-full object-cover opacity-80"
+              />
+              <div className="absolute inset-0 bg-navy/40"></div>
+              <div className="absolute inset-0 p-8 flex flex-col justify-end">
+                <span className="inline-block bg-coral text-white font-bold px-3 py-1 text-sm uppercase tracking-wider w-max mb-4 rounded-sm">
+                  Upcoming Event
+                </span>
+                <h2 className="text-3xl font-extrabold text-white">
+                  Meet &amp; Greet with the Secretary General
+                </h2>
+              </div>
+            </div>
+
+            {/* Event Details side */}
+            <div className="lg:w-3/5 p-8 lg:p-12 flex flex-col justify-center">
+              <div className="mb-6 space-y-3">
+                <h3 className="text-xl md:text-2xl font-bold text-navy">
+                  Meet and Greet with Secretary General: The Venerable Dr. Peter Rouch
+                </h3>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                <div className="flex items-start gap-3">
+                  <Calendar className="w-6 h-6 text-coral shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-navy">When</p>
+                    <p className="text-gray-600">Thursday, September 24, 2026</p>
+                    <p className="text-gray-600">11:00 a.m.–1:00 p.m.</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <MapPin className="w-6 h-6 text-coral shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-navy">Where</p>
+                    <p className="text-gray-600">
+                      Mission to Seafarers Toronto<br />
+                      Cruise Ship Terminal<br />
+                      8 Unwin Avenue<br />
+                      Toronto, ON M5A 1A1
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4 text-gray-700 leading-relaxed mb-8">
+                <p>
+                  Mission to Seafarers Toronto warmly invites you to an informal meet and
+                  greet with The Venerable Dr. Peter Rouch, Secretary General of The Mission
+                  to Seafarers, during his visit to Canada.
+                </p>
+                <p>
+                  Join maritime-sector, church and community partners for tea, conversation
+                  and an opportunity to connect with Dr. Rouch and members of our global team.
+                </p>
+                <p>
+                  Operating in the Cruise Ship Terminal at the Port of Toronto, our Toronto
+                  station transforms a very limited space into an important place of welcome,
+                  connection and practical support for visiting seafarers.
+                </p>
+                <p>
+                  Through photographs and stories, guests will see what is being accomplished,
+                  how much seafarers appreciate this support and why maintaining a welcoming
+                  presence in the port is so important.
+                </p>
+                <p>
+                  We would be delighted to welcome you into our space and share the impact of
+                  our work.
+                </p>
+                <p className="text-navy font-semibold">
+                  Tea and light refreshments will be served.
+                </p>
+                <p className="text-navy font-semibold">
+                  Please RSVP by Wednesday, September 16.
+                </p>
+              </div>
+
+              <div>
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-coral hover:bg-coral-light text-white font-bold"
+                >
+                  <a
+                    href="https://www.zeffy.com/en-CA/ticketing/mission-to-seafarers-toronto-station-tour-and-tea"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    RSVP Now
+                    <ArrowRight className="ml-2 w-5 h-5" />
+                  </a>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 2. FEATURED EVENT SECTION */}
+      <section className="pb-20 lg:pb-28 bg-warm-gray/30">
         <div className="container max-w-6xl mx-auto px-4 md:px-6">
           
           <div className="bg-white rounded-2xl shadow-soft border border-border overflow-hidden flex flex-col lg:flex-row">
